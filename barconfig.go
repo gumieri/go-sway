@@ -1,4 +1,4 @@
-package i3
+package sway
 
 import "encoding/json"
 
@@ -51,7 +51,6 @@ type BarConfig struct {
 }
 
 // GetBarIDs returns an array of configured bar IDs.
-//
 // GetBarIDs is supported in i3 ≥ v4.1 (2011-11-11).
 func GetBarIDs() ([]string, error) {
 	reply, err := roundTrip(messageTypeGetBarConfig, nil)

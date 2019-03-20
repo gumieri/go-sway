@@ -1,10 +1,10 @@
-package i3
+package sway
 
 import "encoding/json"
 
 // SyncRequest represents the payload of a Sync request.
 type SyncRequest struct {
-	Window uint32 `json:"window"` // X11 window id
+	Window uint32 `json:"window"` // Wayland window id
 	Rnd    uint32 `json:"rnd"`    // Random value for distinguishing requests
 }
 

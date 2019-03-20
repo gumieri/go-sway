@@ -1,4 +1,4 @@
-package i3
+package sway
 
 import (
 	"bytes"
@@ -30,18 +30,18 @@ func msgBytes(order binary.ByteOrder, t messageType, payload string) []byte {
 func TestDetectByteOrder(t *testing.T) {
 	t.Parallel()
 
-	for _, i3order := range []binary.ByteOrder{binary.BigEndian, binary.LittleEndian} {
-		i3order := i3order // copy
-		t.Run(fmt.Sprintf("%T", i3order), func(t *testing.T) {
+	for _, swayorder := range []binary.ByteOrder{binary.BigEndian, binary.LittleEndian} {
+		swayorder := swayorder // copy
+		t.Run(fmt.Sprintf("%T", swayorder), func(t *testing.T) {
 			t.Parallel()
 
 			var (
-				subscribeRequest = msgBytes(i3order, messageTypeSubscribe, "[]"+strings.Repeat(" ", 65536+256-2))
-				subscribeReply   = msgBytes(i3order, messageReplyTypeSubscribe, `{"success": true}`)
+				subscribeRequest = msgBytes(swayorder, messageTypeSubscribe, "[]"+strings.Repeat(" ", 65536+256-2))
+				subscribeReply   = msgBytes(swayorder, messageReplyTypeSubscribe, `{"success": true}`)
 
 				nopPrefix         = "nop byte-order detection. padding: "
-				runCommandRequest = msgBytes(i3order, messageTypeRunCommand, nopPrefix+strings.Repeat("a", 65536+256-len(nopPrefix)))
-				runCommandReply   = msgBytes(i3order, messageReplyTypeCommand, `[{"success": true}]`)
+				runCommandRequest = msgBytes(swayorder, messageTypeRunCommand, nopPrefix+strings.Repeat("a", 65536+256-len(nopPrefix)))
+				runCommandReply   = msgBytes(swayorder, messageReplyTypeCommand, `[{"success": true}]`)
 
 				protocol = map[string][]byte{
 					string(subscribeRequest):  subscribeReply,
@@ -51,17 +51,17 @@ func TestDetectByteOrder(t *testing.T) {
 
 			// Abstract socket addresses are a linux-only feature, so we must
 			// use file system paths for listening/dialing:
-			dir, err := ioutil.TempDir("", "i3test")
+			dir, err := ioutil.TempDir("", "swaytest")
 			if err != nil {
 				t.Fatal(err)
 			}
 			defer os.RemoveAll(dir)
-			path := filepath.Join(dir, fmt.Sprintf("i3test-%T.sock", i3order))
-			i3addr, err := net.ResolveUnixAddr("unix", path)
+			path := filepath.Join(dir, fmt.Sprintf("swaytest-%T.sock", swayorder))
+			swayaddr, err := net.ResolveUnixAddr("unix", path)
 			if err != nil {
 				t.Fatal(err)
 			}
-			i3ln, err := net.ListenUnix("unix", i3addr)
+			swayln, err := net.ListenUnix("unix", swayaddr)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -82,12 +82,12 @@ func TestDetectByteOrder(t *testing.T) {
 				}
 				order, orderErr = detectByteOrder(conn)
 				conn.Close()
-				i3ln.Close() // unblock Accept and return an error
+				swayln.Close() // unblock Accept and return an error
 				return orderErr
 			})
 			eg.Go(func() error {
 				for {
-					conn, err := i3ln.Accept()
+					conn, err := swayln.Accept()
 					if err != nil {
 						return err
 					}
@@ -104,7 +104,7 @@ func TestDetectByteOrder(t *testing.T) {
 								}
 								continue
 							}
-							// silently drop unexpected messages like i3
+							// silently drop unexpected messages like sway
 						}
 					})
 				}
@@ -116,7 +116,7 @@ func TestDetectByteOrder(t *testing.T) {
 					t.Fatal(err)
 				}
 			}
-			if got, want := order, i3order; got != want {
+			if got, want := order, swayorder; got != want {
 				t.Fatalf("unexpected byte order: got %v, want %v", got, want)
 			}
 		})

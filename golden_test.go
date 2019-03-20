@@ -1,4 +1,4 @@
-package i3
+package sway
 
 import (
 	"context"
@@ -13,7 +13,7 @@ import (
 )
 
 // TestGoldensSubprocess runs in a process which has been started with
-// DISPLAY= pointing to an Xvfb instance with i3 -c testdata/i3.config running.
+// DISPLAY= pointing to an Xvfb instance with sway -c testdata/sway.config running.
 func TestGoldensSubprocess(t *testing.T) {
 	if os.Getenv("GO_WANT_XVFB") != "1" {
 		t.Skip("parent process")
@@ -31,7 +31,7 @@ func TestGoldensSubprocess(t *testing.T) {
 		}
 		got.HumanReadable = "" // too brittle to compare
 		got.Patch = 0          // the IPC interface does not change across patch releases
-		abs, err := filepath.Abs("testdata/i3.config")
+		abs, err := filepath.Abs("testdata/sway.config")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -208,7 +208,7 @@ func TestGoldensSubprocess(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		configBytes, err := ioutil.ReadFile("testdata/i3.config")
+		configBytes, err := ioutil.ReadFile("testdata/sway.config")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -259,11 +259,11 @@ func TestGoldens(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	abs, err := filepath.Abs("testdata/i3.config")
+	abs, err := filepath.Abs("testdata/sway.config")
 	if err != nil {
 		t.Fatal(err)
 	}
-	wm := exec.CommandContext(ctx, "i3", "-c", abs, "-d", "all", fmt.Sprintf("--shmlog-size=%d", 5*1024*1024))
+	wm := exec.CommandContext(ctx, "sway", "-c", abs, "-d", "all", fmt.Sprintf("--shmlog-size=%d", 5*1024*1024))
 	wm.Env = []string{
 		"DISPLAY=" + DISPLAY,
 		"PATH=" + os.Getenv("PATH"),

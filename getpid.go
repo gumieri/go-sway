@@ -1,11 +1,11 @@
-package i3
+package sway
 
 import (
 	"github.com/BurntSushi/xgbutil"
 	"github.com/BurntSushi/xgbutil/xprop"
 )
 
-func i3Running() bool {
+func swayRunning() bool {
 	xu, err := xgbutil.NewConn()
 	if err != nil {
 		return false // X session terminated

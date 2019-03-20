@@ -1,4 +1,4 @@
-package i3
+package sway
 
 import (
 	"context"
@@ -14,14 +14,14 @@ import (
 )
 
 // TestSubscribeSubprocess runs in a process which has been started with
-// DISPLAY= pointing to an Xvfb instance with i3 -c testdata/i3.config running.
+// DISPLAY= pointing to an Xvfb instance with sway -c testdata/sway.config running.
 func TestSubscribeSubprocess(t *testing.T) {
 	if os.Getenv("GO_WANT_XVFB") != "1" {
 		t.Skip("parent process")
 	}
 
-	// TODO(https://github.com/i3/i3/issues/2988): as soon as we are targeting
-	// i3 4.15, use SendTick to eliminate race conditions in this test.
+	// TODO(https://github.com/sway/sway/issues/2988): as soon as we are targeting
+	// sway 4.15, use SendTick to eliminate race conditions in this test.
 
 	t.Run("subscribe", func(t *testing.T) {
 		var eg errgroup.Group
@@ -49,7 +49,7 @@ func TestSubscribeSubprocess(t *testing.T) {
 		select {
 		case <-received:
 		case <-time.After(5 * time.Second):
-			t.Fatalf("timeout waiting for an event from i3")
+			t.Fatalf("timeout waiting for an event from sway")
 		}
 		if err := eg.Wait(); err != nil {
 			t.Fatal(err)
@@ -148,7 +148,7 @@ func TestSubscribeSubprocess(t *testing.T) {
 		select {
 		case <-received:
 		case <-time.After(5 * time.Second):
-			t.Fatalf("timeout waiting for an event from i3")
+			t.Fatalf("timeout waiting for an event from sway")
 		}
 		if err := eg.Wait(); err != nil {
 			t.Fatal(err)
@@ -167,11 +167,11 @@ func TestSubscribe(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	abs, err := filepath.Abs("testdata/i3.config")
+	abs, err := filepath.Abs("testdata/sway.config")
 	if err != nil {
 		t.Fatal(err)
 	}
-	wm := exec.CommandContext(ctx, "i3", "-c", abs, "-d", "all", fmt.Sprintf("--shmlog-size=%d", 5*1024*1024))
+	wm := exec.CommandContext(ctx, "sway", "-c", abs, "-d", "all", fmt.Sprintf("--shmlog-size=%d", 5*1024*1024))
 	wm.Stderr = os.Stderr
 	wm.Env = []string{
 		"DISPLAY=" + DISPLAY,

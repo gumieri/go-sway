@@ -1,4 +1,4 @@
-package i3
+package sway
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 // NodeType indicates the specific kind of Node.
 type NodeType string
 
-// i3 currently implements the following node types:
+// sway currently implements the following node types:
 const (
 	Root          NodeType = "root"
 	OutputNode    NodeType = "output"
@@ -20,7 +20,7 @@ const (
 // Layout indicates the layout of a Node.
 type Layout string
 
-// i3 currently implements the following layouts:
+// sway currently implements the following layouts:
 const (
 	SplitH         Layout = "splith"
 	SplitV         Layout = "splitv"
@@ -33,7 +33,7 @@ const (
 // BorderStyle indicates the border style of a node.
 type BorderStyle string
 
-// i3 currently implements the following border styles:
+// sway currently implements the following border styles:
 const (
 	NormalBorder BorderStyle = "normal"
 	NoBorder     BorderStyle = "none"
@@ -48,9 +48,9 @@ type Rect struct {
 	Height int64 `json:"height"`
 }
 
-// WindowProperties correspond to X11 window properties
+// WindowProperties correspond to Wayland window properties
 //
-// See https://build.i3wm.org/docs/ipc.html#_tree_reply
+// See https://build.swaywm.org/docs/ipc.html#_tree_reply
 type WindowProperties struct {
 	Title     string `json:"title"`
 	Instance  string `json:"instance"`
@@ -59,13 +59,13 @@ type WindowProperties struct {
 	Transient NodeID `json:"transient_for"`
 }
 
-// NodeID is an i3-internal ID for the node, which can be used to identify
+// NodeID is an sway-internal ID for the node, which can be used to identify
 // containers within the IPC interface.
 type NodeID int64
 
 // Node is a node in a Tree.
 //
-// See https://i3wm.org/docs/ipc.html#_tree_reply for more details.
+// See https://swaywm.org/docs/ipc.html#_tree_reply for more details.
 type Node struct {
 	ID                 NodeID           `json:"id"`
 	Name               string           `json:"name"` // window: title, container: internal name
@@ -74,11 +74,11 @@ type Node struct {
 	CurrentBorderWidth int64            `json:"current_border_width"`
 	Layout             Layout           `json:"layout"`
 	Percent            float64          `json:"percent"`
-	Rect               Rect             `json:"rect"`        // absolute (= relative to X11 display)
+	Rect               Rect             `json:"rect"`        // absolute (= relative to Wayland display)
 	WindowRect         Rect             `json:"window_rect"` // window, relative to Rect
 	DecoRect           Rect             `json:"deco_rect"`   // decoration, relative to Rect
 	Geometry           Rect             `json:"geometry"`    // original window geometry, absolute
-	Window             int64            `json:"window"`      // X11 window ID of the client window
+	Window             int64            `json:"window"`      // Wayland window ID of the client window
 	WindowProperties   WindowProperties `json:"window_properties"`
 	Urgent             bool             `json:"urgent"` // urgency hint set
 	Focused            bool             `json:"focused"`
@@ -143,13 +143,13 @@ func (n *Node) FindFocused(predicate func(*Node) bool) *Node {
 	return nil
 }
 
-// Tree is an i3 layout tree, starting with Root.
+// Tree is an sway layout tree, starting with Root.
 type Tree struct {
 	// Root is the root node of the layout tree.
 	Root *Node
 }
 
-// GetTree returns i3’s layout tree.
+// GetTree returns sway’s layout tree.
 //
 // GetTree is supported in i3 ≥ v4.0 (2011-07-31).
 func GetTree() (Tree, error) {

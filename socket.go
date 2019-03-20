@@ -1,4 +1,4 @@
-package i3
+package sway
 
 import (
 	"encoding/binary"
@@ -12,12 +12,12 @@ import (
 	"time"
 )
 
-// If your computer takes more than 10s to restart i3, it must be seriously
+// If your computer takes more than 10s to restart sway, it must be seriously
 // overloaded, in which case we are probably doing you a favor by erroring out.
 const reconnectTimeout = 10 * time.Second
 
 // remote is a singleton containing the socket path and auto-detected byte order
-// which i3 is using. It is lazily initialized by getIPCSocket.
+// which sway is using. It is lazily initialized by getIPCSocket.
 var remote struct {
 	path  string
 	order binary.ByteOrder
@@ -29,9 +29,9 @@ func getIPCSocket(updateSocketPath bool) (*socket, net.Conn, error) {
 	defer remote.mu.Unlock()
 	path := remote.path
 	if updateSocketPath || remote.path == "" {
-		out, err := exec.Command("i3", "--get-socketpath").CombinedOutput()
+		out, err := exec.Command("sway", "--get-socketpath").CombinedOutput()
 		if err != nil {
-			return nil, nil, fmt.Errorf("getting i3 socketpath: %v (output: %s)", err, out)
+			return nil, nil, fmt.Errorf("getting sway socketpath: %v (output: %s)", err, out)
 		}
 		path = strings.TrimSpace(string(out))
 	}
@@ -141,7 +141,7 @@ func (s *socket) roundTrip(t messageType, payload []byte) (message, error) {
 }
 
 // defaultSock is a singleton, lazily initialized by roundTrip. All
-// request/response messages are sent to i3 via this socket, whereas
+// request/response messages are sent to sway via this socket, whereas
 // subscriptions use their own connection.
 var defaultSock struct {
 	sock *socket
@@ -149,11 +149,11 @@ var defaultSock struct {
 	mu   sync.Mutex
 }
 
-// roundTrip sends a message to i3 and returns the received result in a
+// roundTrip sends a message to sway and returns the received result in a
 // concurrency-safe fashion.
 func roundTrip(t messageType, payload []byte) (message, error) {
 	// Error out early in case the message type is not yet supported by the
-	// running i3 version.
+	// running sway version.
 	if t != messageTypeGetVersion {
 		if err := AtLeast(messageAtLeast[t].major, messageAtLeast[t].minor); err != nil {
 			return message{}, err
@@ -172,7 +172,7 @@ Outer:
 
 		// reconnect
 		start := time.Now()
-		for time.Since(start) < reconnectTimeout && (defaultSock.sock == nil || i3Running()) {
+		for time.Since(start) < reconnectTimeout && (defaultSock.sock == nil || swayRunning()) {
 			if defaultSock.sock != nil {
 				defaultSock.conn.Close()
 			}
@@ -181,7 +181,7 @@ Outer:
 				continue Outer
 			}
 
-			// Reconnect within [10, 20) ms to prevent CPU-starving i3.
+			// Reconnect within [10, 20) ms to prevent CPU-starving sway.
 			time.Sleep(time.Duration(10+rand.Int63n(10)) * time.Millisecond)
 		}
 		return msg, err

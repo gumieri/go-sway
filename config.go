@@ -1,4 +1,4 @@
-package i3
+package sway
 
 import "encoding/json"
 
@@ -9,7 +9,7 @@ type Config struct {
 	Config string `json:"config"`
 }
 
-// GetConfig returns i3’s in-memory copy of the configuration file contents.
+// GetConfig returns sway’s in-memory copy of the configuration file contents.
 //
 // GetConfig is supported in i3 ≥ v4.14 (2017-09-04).
 func GetConfig() (Config, error) {

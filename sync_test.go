@@ -1,4 +1,4 @@
-package i3
+package sway
 
 import (
 	"context"
@@ -15,7 +15,7 @@ import (
 )
 
 // TestSyncSubprocess runs in a process which has been started with
-// DISPLAY= pointing to an Xvfb instance with i3 -c testdata/i3.config running.
+// DISPLAY= pointing to an Xvfb instance with sway -c testdata/sway.config running.
 func TestSyncSubprocess(t *testing.T) {
 	if os.Getenv("GO_WANT_XVFB") != "1" {
 		t.Skip("parent process")
@@ -27,7 +27,7 @@ func TestSyncSubprocess(t *testing.T) {
 	}
 	defer xu.Conn().Close()
 
-	// Create an X11 window
+	// Create an Wayland window
 	X := xu.Conn()
 	wid, err := xproto.NewWindowId(X)
 	if err != nil {
@@ -56,7 +56,7 @@ func TestSyncSubprocess(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// Synchronize i3 with that X11 window
+	// Synchronize sway with that Wayland window
 	rnd := rand.Uint32()
 	resp, err := Sync(SyncRequest{
 		Rnd:    rnd,
@@ -72,7 +72,7 @@ func TestSyncSubprocess(t *testing.T) {
 	for {
 		ev, xerr := X.WaitForEvent()
 		if xerr != nil {
-			t.Fatalf("WaitEvent: got X11 error %v", xerr)
+			t.Fatalf("WaitEvent: got Wayland error %v", xerr)
 		}
 		cm, ok := ev.(xproto.ClientMessageEvent)
 		if !ok {
@@ -100,11 +100,11 @@ func TestSync(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	abs, err := filepath.Abs("testdata/i3.config")
+	abs, err := filepath.Abs("testdata/sway.config")
 	if err != nil {
 		t.Fatal(err)
 	}
-	wm := exec.CommandContext(ctx, "i3", "-c", abs, "-d", "all", fmt.Sprintf("--shmlog-size=%d", 5*1024*1024))
+	wm := exec.CommandContext(ctx, "sway", "-c", abs, "-d", "all", fmt.Sprintf("--shmlog-size=%d", 5*1024*1024))
 	wm.Env = []string{
 		"DISPLAY=" + DISPLAY,
 		"PATH=" + os.Getenv("PATH"),

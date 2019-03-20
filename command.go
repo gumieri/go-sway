@@ -1,4 +1,4 @@
-package i3
+package sway
 
 import (
 	"encoding/json"
@@ -36,7 +36,7 @@ func (e *CommandUnsuccessfulError) Error() string {
 	return fmt.Sprintf("command %q unsuccessful: %v", e.command, e.cr.Error)
 }
 
-// RunCommand makes i3 run the specified command.
+// RunCommand makes sway run the specified command.
 //
 // Error is non-nil if any CommandResult.Success is not true. See IsUnsuccessful
 // if you send commands which are expected to fail.

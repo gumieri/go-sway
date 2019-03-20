@@ -1,10 +1,10 @@
-package i3
+package sway
 
 import "encoding/json"
 
-// Workspace describes an i3 workspace.
+// Workspace describes an sway workspace.
 //
-// See https://i3wm.org/docs/ipc.html#_workspaces_reply for more details.
+// See https://swaywm.org/docs/ipc.html#_workspaces_reply for more details.
 type Workspace struct {
 	Num     int64  `json:"num"`
 	Name    string `json:"name"`
@@ -15,7 +15,7 @@ type Workspace struct {
 	Output  string `json:"output"`
 }
 
-// GetWorkspaces returns i3’s current workspaces.
+// GetWorkspaces returns sway’s current workspaces.
 //
 // GetWorkspaces is supported in i3 ≥ v4.0 (2011-07-31).
 func GetWorkspaces() ([]Workspace, error) {

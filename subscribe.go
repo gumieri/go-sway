@@ -1,4 +1,4 @@
-package i3
+package sway
 
 import (
 	"encoding/json"
@@ -8,14 +8,14 @@ import (
 	"time"
 )
 
-// Event is an event received from i3.
+// Event is an event received from sway.
 //
 // Type-assert or type-switch on Event to obtain a more specific type.
 type Event interface{}
 
 // WorkspaceEvent contains details about various workspace-related changes.
 //
-// See https://i3wm.org/docs/ipc.html#_workspace_event for more details.
+// See https://swaywm.org/docs/ipc.html#_workspace_event for more details.
 type WorkspaceEvent struct {
 	Change  string `json:"change"`
 	Current Node   `json:"current"`
@@ -24,14 +24,14 @@ type WorkspaceEvent struct {
 
 // OutputEvent contains details about various output-related changes.
 //
-// See https://i3wm.org/docs/ipc.html#_output_event for more details.
+// See https://swaywm.org/docs/ipc.html#_output_event for more details.
 type OutputEvent struct {
 	Change string `json:"change"`
 }
 
 // ModeEvent contains details about various mode-related changes.
 //
-// See https://i3wm.org/docs/ipc.html#_mode_event for more details.
+// See https://swaywm.org/docs/ipc.html#_mode_event for more details.
 type ModeEvent struct {
 	Change      string `json:"change"`
 	PangoMarkup bool   `json:"pango_markup"`
@@ -39,7 +39,7 @@ type ModeEvent struct {
 
 // WindowEvent contains details about various window-related changes.
 //
-// See https://i3wm.org/docs/ipc.html#_window_event for more details.
+// See https://swaywm.org/docs/ipc.html#_window_event for more details.
 type WindowEvent struct {
 	Change    string `json:"change"`
 	Container Node   `json:"container"`
@@ -47,12 +47,12 @@ type WindowEvent struct {
 
 // BarconfigUpdateEvent contains details about various bar config-related changes.
 //
-// See https://i3wm.org/docs/ipc.html#_barconfig_update_event for more details.
+// See https://swaywm.org/docs/ipc.html#_barconfig_update_event for more details.
 type BarconfigUpdateEvent BarConfig
 
 // BindingEvent contains details about various binding-related changes.
 //
-// See https://i3wm.org/docs/ipc.html#_binding_event for more details.
+// See https://swaywm.org/docs/ipc.html#_binding_event for more details.
 type BindingEvent struct {
 	Change  string `json:"change"`
 	Binding struct {
@@ -67,14 +67,14 @@ type BindingEvent struct {
 // ShutdownEvent contains the reason for which the IPC connection is about to be
 // shut down.
 //
-// See https://i3wm.org/docs/ipc.html#_shutdown_event for more details.
+// See https://swaywm.org/docs/ipc.html#_shutdown_event for more details.
 type ShutdownEvent struct {
 	Change string `json:"change"`
 }
 
 // TickEvent contains the payload of the last tick command.
 //
-// See https://i3wm.org/docs/ipc.html#_tick_event for more details.
+// See https://swaywm.org/docs/ipc.html#_tick_event for more details.
 type TickEvent struct {
 	First   bool   `json:"first"`
 	Payload string `json:"payload"`
@@ -108,7 +108,7 @@ type EventReceiver struct {
 	reconnect bool
 }
 
-// Event returns the most recent event received from i3 by a call to Next.
+// Event returns the most recent event received from sway by a call to Next.
 func (r *EventReceiver) Event() Event {
 	return r.ev
 }
@@ -138,7 +138,7 @@ func (r *EventReceiver) subscribe() error {
 		return err
 	}
 	if !reply.Success {
-		return fmt.Errorf("could not subscribe, check the i3 log")
+		return fmt.Errorf("could not subscribe, check the sway log")
 	}
 	r.err = nil
 	return nil
@@ -195,7 +195,7 @@ func (r *EventReceiver) next() (Event, error) {
 // error.
 //
 // Until you call Close, you must call Next in a loop for every EventReceiver
-// (usually in a separate goroutine), otherwise i3 will deadlock as soon as the
+// (usually in a separate goroutine), otherwise sway will deadlock as soon as the
 // UNIX socket buffer is full of unprocessed events.
 func (r *EventReceiver) Next() bool {
 Outer:
@@ -207,22 +207,22 @@ Outer:
 
 		// reconnect
 		start := time.Now()
-		for time.Since(start) < reconnectTimeout && (r.sock == nil || i3Running()) {
+		for time.Since(start) < reconnectTimeout && (r.sock == nil || swayRunning()) {
 			if err := r.subscribe(); err == nil {
 				continue Outer
 			} else {
 				r.err = err
 			}
 
-			// Reconnect within [10, 20) ms to prevent CPU-starving i3.
+			// Reconnect within [10, 20) ms to prevent CPU-starving sway.
 			time.Sleep(time.Duration(10+rand.Int63n(10)) * time.Millisecond)
 		}
 	}
 	return r.err == nil
 }
 
-// Close closes the connection to i3. If you don’t ever call Close, you must
-// consume events via Next to prevent i3 from deadlocking.
+// Close closes the connection to sway. If you don’t ever call Close, you must
+// consume events via Next to prevent sway from deadlocking.
 func (r *EventReceiver) Close() error {
 	if r.conn != nil {
 		if r.err == nil {
@@ -240,7 +240,7 @@ func (r *EventReceiver) Close() error {
 // EventType indicates the specific kind of event to subscribe to.
 type EventType string
 
-// i3 currently implements the following event types:
+// sway currently implements the following event types:
 const (
 	WorkspaceEventType       EventType = "workspace"        // since 4.0
 	OutputEventType          EventType = "output"           // since 4.0
@@ -269,7 +269,7 @@ var eventAtLeast = map[EventType]majorMinor{
 }
 
 // Subscribe returns an EventReceiver for receiving events of the specified
-// types from i3.
+// types from sway.
 //
 // Unless the ordering of events matters to your use-case, you are encouraged to
 // call Subscribe once per event type, so that you can use type assertions
@@ -278,7 +278,7 @@ var eventAtLeast = map[EventType]majorMinor{
 // Subscribe is supported in i3 ≥ v4.0 (2011-07-31).
 func Subscribe(eventTypes ...EventType) *EventReceiver {
 	// Error out early in case any requested event type is not yet supported by
-	// the running i3 version.
+	// the running sway version.
 	for _, t := range eventTypes {
 		if err := AtLeast(eventAtLeast[t].major, eventAtLeast[t].minor); err != nil {
 			return &EventReceiver{err: err}
@@ -287,7 +287,7 @@ func Subscribe(eventTypes ...EventType) *EventReceiver {
 	return &EventReceiver{types: eventTypes}
 }
 
-// restart runs the restart i3 command without entering an infinite loop: as
+// restart runs the restart sway command without entering an infinite loop: as
 // RUN_COMMAND with payload "restart" does not result in a reply, we subscribe
 // to the shutdown event beforehand (on a dedicated connection), which we can
 // receive instead of a reply.
@@ -312,7 +312,7 @@ func restart(firstAttempt bool) error {
 		return err
 	}
 	if !sreply.Success {
-		return fmt.Errorf("could not subscribe, check the i3 log")
+		return fmt.Errorf("could not subscribe, check the sway log")
 	}
 	rreply, err := sock.roundTrip(messageTypeRunCommand, []byte("restart"))
 	if err != nil {
@@ -340,8 +340,8 @@ func restart(firstAttempt bool) error {
 	return nil // shutdown event received
 }
 
-// Restart sends the restart command to i3. Sending restart via RunCommand will
-// result in a deadlock: since i3 restarts before it sends the reply to the
+// Restart sends the restart command to sway. Sending restart via RunCommand will
+// result in a deadlock: since sway restarts before it sends the reply to the
 // restart command, RunCommand will retry the command indefinitely.
 //
 // Restart is supported in i3 ≥ v4.14 (2017-09-04).
@@ -358,7 +358,7 @@ func Restart() error {
 		start        = time.Now()
 		lastErr      error
 	)
-	for time.Since(start) < reconnectTimeout && (firstAttempt || i3Running()) {
+	for time.Since(start) < reconnectTimeout && (firstAttempt || swayRunning()) {
 		lastErr = restart(firstAttempt)
 		if lastErr == nil {
 			return nil // success

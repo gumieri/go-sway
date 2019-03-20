@@ -1,4 +1,4 @@
-package i3
+package sway
 
 import (
 	"context"

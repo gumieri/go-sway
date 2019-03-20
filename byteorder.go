@@ -1,4 +1,4 @@
-package i3
+package sway
 
 import (
 	"encoding/binary"
@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// detectByteOrder sends messages to i3 to determine the byte order it uses.
+// detectByteOrder sends messages to sway to determine the byte order it uses.
 // For details on this technique, see:
 // https://build.i3wm.org/docs/ipc.html#_appendix_a_detecting_byte_order_in_memory_safe_languages
 func detectByteOrder(conn io.ReadWriter) (binary.ByteOrder, error) {
