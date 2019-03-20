@@ -1,8 +1,19 @@
+# Disclaimer
+
+Hi! I'm happy you're here. This project is very much in its early stages; so use
+with caution and please file issues and pull requests as you please. Basically,
+so far, I've just forked go.i3wm.org/i3.git and replaced every instance of "i3"
+with "sway."
+
+Your help is appreciated! I'm happy to maintain this library.
+
+# go-sway
+
 [![Build Status](https://travis-ci.org/i3/go-i3.svg?branch=master)](https://travis-ci.org/i3/go-i3)
 [![Go Report Card](https://goreportcard.com/badge/go.i3wm.org/i3)](https://goreportcard.com/report/go.i3wm.org/i3)
 [![GoDoc](https://godoc.org/go.i3wm.org/i3?status.svg)](https://godoc.org/go.i3wm.org/sway)
 
-Package sway provides a convenient interface to the i3 window manager via [its IPC
+Package sway provides a convenient interface to the sway window manager via [its IPC
 interface](https://i3wm.org/docs/ipc.html).
 
 See [its documentation](https://godoc.org/go.i3wm.org/i3) for more details.
@@ -56,5 +67,5 @@ Be sure to include the target sway version (the most recent stable release) in
 `$PATH` and use `go test` as usual:
 
 ```shell
-PATH=~/i3/build/i3:$PATH go test -v go.i3wm.org/i3
+PATH=~/i3/build/i3:$PATH go test -v github.com/harrisonthorne/go-sway
 ```
