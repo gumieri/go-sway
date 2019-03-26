@@ -68,6 +68,7 @@ type NodeID int64
 // See https://swaywm.org/docs/ipc.html#_tree_reply for more details.
 type Node struct {
 	ID                 NodeID           `json:"id"`
+	PID                int              `json:"pid"`
 	Name               string           `json:"name"` // window: title, container: internal name
 	Type               NodeType         `json:"type"`
 	Border             BorderStyle      `json:"border"`

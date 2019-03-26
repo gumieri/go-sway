@@ -11,12 +11,12 @@ Your help is appreciated! I'm happy to maintain this library.
 
 [![Build Status](https://travis-ci.org/i3/go-i3.svg?branch=master)](https://travis-ci.org/i3/go-i3)
 [![Go Report Card](https://goreportcard.com/badge/go.i3wm.org/i3)](https://goreportcard.com/report/go.i3wm.org/i3)
-[![GoDoc](https://godoc.org/go.i3wm.org/i3?status.svg)](https://godoc.org/go.i3wm.org/sway)
+[![GoDoc](https://godoc.org/github.com/gumieri/go-sway?status.svg)](https://godoc.org/github.com/gumieri/go-sway)
 
 Package sway provides a convenient interface to the sway window manager via [its IPC
 interface](https://i3wm.org/docs/ipc.html).
 
-See [its documentation](https://godoc.org/go.i3wm.org/i3) for more details.
+See [its documentation](https://godoc.org/github.com/gumieri/go-sway) for more details.
 
 ## Advantages over other sway IPC packages
 
